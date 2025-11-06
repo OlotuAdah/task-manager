@@ -1,6 +1,7 @@
-import { IsEmail, IsString, MinLength, MaxLength, Matches, IsNotEmpty } from "class-validator";
+import { IsEmail, IsString, MinLength, MaxLength, Matches, IsNotEmpty, IsAlphanumeric } from "class-validator";
 import { Transform } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import { Sanitize } from "@/shared/decorators/sanitize.decorator";
 
 export class RegisterDto {
   @ApiProperty({ example: "adaholotu@gmail.com" })
@@ -21,13 +22,15 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  @Transform(({ value }) => value?.trim())
+  @Matches(/^[a-zA-Z\s]+$/, { message: 'Name can only contain letters and spaces' })
+  @Sanitize()
   firstName: string;
 
   @ApiProperty({ example: "Olotu" })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  @Transform(({ value }) => value?.trim())
+  @Matches(/^[a-zA-Z\s]+$/, { message: 'Name can only contain letters and spaces' })
+  @Sanitize()
   lastName: string;
 }

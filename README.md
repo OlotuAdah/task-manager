@@ -109,7 +109,7 @@ A comprehensive task management system built with NestJS, implementing Clean Arc
 
 Once the application is running, visit:
 
-- **Swagger UI**: <http://localhost:3000/api/task-manager-docs/swagger>
+- **Swagger UI**: <http://localhost:3000/api/docs>
 - **API Base URL**: <http://localhost:3000/api>
 
 ## API Endpoints
@@ -276,47 +276,155 @@ npm run format
 
 ## Production Deployment
 
+### ⚠️ Important Production Considerations
+
+**Before deploying to production, you MUST:**
+
+1. **Disable TypeORM Synchronization**
+   - Set `NODE_ENV=production` to disable `synchronize: true`
+   - Use proper database migrations instead of auto-sync
+
+2. **Setup Database Migrations**
+
+   ```bash
+   # Generate initial migration from current entities
+   npm run typeorm migration:generate -- -n InitialSchema
+
+   # Run migrations in production
+   npm run typeorm migration:run
+   ```
+
+3. **Security Hardening**
+   - Change default JWT secret to a strong, unique value
+   - Use environment variables for all secrets (never hardcode)
+   - Configure proper CORS origins for your domain
+   - Set up SSL/TLS certificates
+   - Use a reverse proxy (nginx/Apache) in front of the app
+
+4. **Environment Variables for Production**
+
+   ```env
+   NODE_ENV=production
+   DATABASE_HOST=your-prod-db-host
+   DATABASE_PORT=5432
+   DATABASE_USERNAME=your-db-user
+   DATABASE_PASSWORD=your-secure-db-password
+   DATABASE_NAME=taskmanager_prod
+
+   JWT_SECRET=your-very-long-random-secret-key-here
+   JWT_EXPIRES_IN=1h  # Shorter expiry for production
+
+   REDIS_HOST=your-redis-host
+   REDIS_PORT=6379
+
+   ALLOWED_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
+   RATE_LIMIT_TTL=60000
+   RATE_LIMIT_MAX=50  # Lower limit for production
+
+   PORT=3000
+   ```
+
 ### Docker Production
 
-1. **Update environment variables** in docker-compose.yaml for production
+1. **Create production docker-compose.yml**
+
+   ```yaml
+   services:
+     app:
+       build: .
+       environment:
+         NODE_ENV: production
+         DATABASE_HOST: postgres
+         # ... other production env vars
+       restart: unless-stopped
+   ```
 
 2. **Deploy with Docker Compose**
 
    ```bash
-   docker compose up -d
+   docker compose -f docker-compose.prod.yml up -d
    ```
 
 ### Manual Production Deployment
 
-1. **Build the application**
+1. **Install dependencies and build**
 
    ```bash
+   npm ci --only=production
    npm run build
    ```
 
-2. **Set production environment variables**
+2. **Run database migrations**
 
    ```bash
-   export NODE_ENV=production
-   export DATABASE_URL=postgresql://user:pass@host:port/db
-   export REDIS_URL=redis://host:port
+   npm run typeorm migration:run
    ```
 
-3. **Database tables** are automatically created via TypeORM synchronization
-
-4. **Start the application**
+3. **Start with process manager**
 
    ```bash
-   npm run start:prod
+   # Using PM2
+   pm2 start dist/src/main.js --name task-manager-api
+
+   # Or systemd service
+   systemctl start task-manager-api
+   ```
+
+### Migration Setup (Required for Production)
+
+1. **Add migration scripts to package.json**
+
+   ```json
+   {
+     "scripts": {
+       "typeorm": "typeorm-ts-node-commonjs",
+       "migration:generate": "npm run typeorm -- migration:generate",
+       "migration:run": "npm run typeorm -- migration:run",
+       "migration:revert": "npm run typeorm -- migration:revert"
+     }
+   }
+   ```
+
+2. **Create TypeORM config file** (`ormconfig.ts`)
+
+   ```typescript
+   import { DataSource } from "typeorm";
+
+   export default new DataSource({
+     type: "postgres",
+     host: process.env.DATABASE_HOST,
+     port: parseInt(process.env.DATABASE_PORT),
+     username: process.env.DATABASE_USERNAME,
+     password: process.env.DATABASE_PASSWORD,
+     database: process.env.DATABASE_NAME,
+     entities: ["src/**/*.entity.ts"],
+     migrations: ["src/migrations/*.ts"],
+     synchronize: false, // NEVER true in production
+   });
+   ```
+
+3. **Generate and run migrations**
+
+   ```bash
+   # Generate migration from current entities
+   npm run migration:generate -- src/migrations/InitialSchema
+
+   # Run migrations
+   npm run migration:run
    ```
 
 ## Security Features
 
 - **JWT Authentication**: Secure token-based authentication
 - **Password Hashing**: bcrypt for secure password storage
-- **Input Validation**: class-validator for request validation
-- **CORS**: Cross-origin resource sharing configuration
+- **Input Validation**: class-validator with XSS protection
+- **Rate Limiting**: Configurable request throttling (100 req/min default)
+- **Security Headers**: Helmet middleware for security headers
+- **CORS**: Restricted cross-origin resource sharing
+- **Input Sanitization**: XSS filtering on all text inputs
+- **SQL Injection Protection**: TypeORM parameterized queries
 - **Ownership Validation**: Users can only access their own resources
+- **Request Logging**: Security monitoring and audit trails
 
 ## Performance Optimizations
 

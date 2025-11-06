@@ -26,7 +26,12 @@ export class NotificationProcessor {
       const notificationMessage = `[${new Date().toISOString()}] Task Completed: "${taskTitle}" (ID: ${taskId}) for User: ${userId}\n`;
       const logPath = path.join(process.cwd(), 'notifications.log');
       
-      await fs.appendFile(logPath, notificationMessage);
+      try {
+        await fs.appendFile(logPath, notificationMessage);
+      } catch (fileError) {
+        // If file doesn't exist, create it
+        await fs.writeFile(logPath, notificationMessage);
+      }
       
       this.logger.log(`Notification logged to file for task: ${taskId}`);
     } catch (error) {

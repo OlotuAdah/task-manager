@@ -27,12 +27,12 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/docs", app, document);
+  SwaggerModule.setup("api/task-manager-docs/swagger", app, document);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
+  console.log(`Docs: http://localhost:${port}/api/task-manager-docs/swagger`);
 }
 
 bootstrap();

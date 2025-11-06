@@ -1,0 +1,354 @@
+# SoftAlliance Backend Developer Assessement: Task Manager API
+
+A comprehensive task management system built with NestJS, implementing Clean Architecture and CQRS pattern.
+
+## Developer Name: Adah Olotu
+
+## Features
+
+- **User Authentication**: JWT-based registration and login
+- **Task Management**: Full CRUD operations with ownership validation
+- **Background Jobs**: Automatic notifications when tasks are completed
+- **Comments System**: Add comments to tasks
+- **Pagination**: Efficient data retrieval with pagination support
+- **Clean Architecture**: CQRS pattern with command/query separation
+- **Database Transactions**: Pessimistic locking for data consistency
+- **API Documentation**: Swagger/OpenAPI integration
+
+## Tech Stack
+
+- **Framework**: NestJS
+- **Database**: PostgreSQL with TypeORM
+- **Authentication**: JWT with Passport
+- **Background Jobs**: Bull Queue with Redis
+- **Documentation**: Swagger/OpenAPI
+- **Architecture**: Clean Architecture with CQRS
+
+## Prerequisites
+
+- Docker and Docker Compose
+- Node.js (v18 or higher) - for local development
+- PostgreSQL - for local development
+- Redis - for local development
+
+## Installation
+
+### Docker Setup (Recommended)
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd task-manager
+   ```
+
+2. **Start with Docker Compose**
+
+   ```bash
+   # Start all services (PostgreSQL, Redis, API)
+   docker compose up -d
+
+   # View logs
+   docker compose logs -f app
+   ```
+
+3. **Database tables are automatically created** using TypeORM synchronization
+
+### Local Development Setup
+
+1. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+2. **Environment Setup**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update the `.env` file with your database and Redis configurations:
+
+   ```env
+   DATABASE_HOST=localhost
+   DATABASE_PORT=5432
+   DATABASE_USERNAME=postgres
+   DATABASE_PASSWORD=password
+   DATABASE_NAME=taskmanager
+
+   JWT_SECRET=your-super-secret-jwt-key-here!
+   JWT_EXPIRES_IN=7d
+
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+
+   PORT=3000
+   NODE_ENV=development
+   ```
+
+3. **Database Setup**
+
+   ```bash
+   # Create PostgreSQL database
+   createdb taskmanager
+   ```
+
+4. **Start the application**
+
+   ```bash
+   # Development mode
+   npm run start:dev
+
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+## API Documentation
+
+Once the application is running, visit:
+
+- **Swagger UI**: <http://localhost:3000/api/task-manager-docs/swagger>
+- **API Base URL**: <http://localhost:3000/api>
+
+## API Endpoints
+
+### Authentication
+
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+
+### Tasks
+
+- `GET /api/tasks` - Get user tasks (with pagination and filtering)
+- `GET /api/tasks/:id` - Get specific task
+- `POST /api/tasks` - Create new task
+- `PUT /api/tasks/:id` - Update task
+- `DELETE /api/tasks/:id` - Delete task
+
+### Comments (Bonus)
+
+- `GET /api/tasks/:taskId/comments` - Get task comments (with pagination)
+- `POST /api/tasks/:taskId/comments` - Add comment to task
+
+## Usage Examples
+
+### 1. Register User
+
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "adaholotu@gmail.com",
+    "password": "Test@123456789",
+    "firstName": "Adah",
+    "lastName": "Olotu"
+  }'
+```
+
+### 2. Login
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "adaholotu@gmail.com",
+    "password": "Test@123456789"
+  }'
+```
+
+### 3. Create Task
+
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "Complete project documentation",
+    "description": "Write comprehensive API documentation",
+    "status": "pending"
+  }'
+```
+
+### 4. Update Task Status (Triggers Notification)
+
+```bash
+curl -X PUT http://localhost:3000/api/tasks/TASK_ID \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "status": "completed"
+  }'
+```
+
+## Architecture
+
+### Clean Architecture Layers
+
+1. **Controllers**: Handle HTTP requests and responses
+2. **Commands/Queries**: CQRS implementation for business logic separation
+3. **Handlers**: Execute commands and queries
+4. **Entities**: Database models with TypeORM
+5. **Events**: Domain events for background processing
+
+### CQRS Pattern
+
+- **Commands**: Create, Update, Delete operations
+- **Queries**: Read operations with optimized data retrieval
+- **Events**: Asynchronous processing for notifications
+
+### Database Design
+
+- **Users**: Authentication and user management
+- **Tasks**: Core task entity with status tracking
+- **Comments**: Bonus feature
+- **Indexes**: Optimized for efficient data retrieval
+
+## Background Jobs
+
+When a task status is updated to "completed":
+
+1. Event is published (`TaskCompletedEvent`)
+2. Event handler enqueues background job
+3. Notification processor simulates email sending
+4. Notification is logged to `notifications.log` file inside the container
+
+### Viewing Notifications
+
+```bash
+# View notification log
+docker compose exec app cat /app/notifications.log
+
+# Follow notifications in real-time
+docker compose exec app tail -f /app/notifications.log
+
+# Copy log file to host
+docker compose cp taskmanager-api:/app/notifications.log ./notifications.log
+```
+
+## Testing
+
+```bash
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+## Development
+
+### Docker Development
+
+```bash
+# Rebuild after code changes
+docker compose up --build -d
+
+# Rebuild only app service
+docker compose up --build -d app
+
+# View logs
+docker compose logs -f app
+
+# Restart without rebuild
+docker compose restart app
+```
+
+### Local Development
+
+```bash
+# Watch mode
+npm run start:dev
+
+# Debug mode
+npm run start:debug
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+```
+
+## Production Deployment
+
+### Docker Production
+
+1. **Update environment variables** in docker-compose.yaml for production
+
+2. **Deploy with Docker Compose**
+
+   ```bash
+   docker compose up -d
+   ```
+
+### Manual Production Deployment
+
+1. **Build the application**
+
+   ```bash
+   npm run build
+   ```
+
+2. **Set production environment variables**
+
+   ```bash
+   export NODE_ENV=production
+   export DATABASE_URL=postgresql://user:pass@host:port/db
+   export REDIS_URL=redis://host:port
+   ```
+
+3. **Database tables** are automatically created via TypeORM synchronization
+
+4. **Start the application**
+
+   ```bash
+   npm run start:prod
+   ```
+
+## Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcrypt for secure password storage
+- **Input Validation**: class-validator for request validation
+- **CORS**: Cross-origin resource sharing configuration
+- **Ownership Validation**: Users can only access their own resources
+
+## Performance Optimizations
+
+- **Database Indexing**: Optimized indexes for common queries
+- **Pagination**: Efficient data retrieval with limit/offset
+- **Pessimistic Locking**: Prevents race conditions during updates
+- **Connection Pooling**: TypeORM connection management
+- **Background Processing**: Non-blocking notification system
+
+## Docker Services
+
+- **taskmanager-api**: NestJS application (port 3000)
+- **taskmanager-postgres**: PostgreSQL database (port 5433)
+- **taskmanager-redis**: Redis cache (port 6379)
+- **task-manager-network**: Custom bridge network
+
+## Monitoring
+
+- **Logging**: Structured logging with NestJS Logger
+- **Health Checks**: Database and Redis connectivity
+- **Error Handling**: Global exception filters
+- **Notification Logs**: File-based notification tracking
+- **Container Logs**: `docker compose logs -f app`
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## License
+
+This project is licensed under the MIT License.

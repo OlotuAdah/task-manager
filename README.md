@@ -109,8 +109,8 @@ A comprehensive task management system built with NestJS, implementing Clean Arc
 
 Once the application is running, visit:
 
-- **Swagger UI**: <http://localhost:3000/api/v1/docs>
-- **API Base URL**: <http://localhost:3000/api/v1>
+- **Swagger UI**: <{{BaseUrl}}/api/v1/docs>
+- **API Base URL**: <{{BaseUrl}}/api/v1>
 
 ## API Endpoints
 
@@ -137,7 +137,7 @@ Once the application is running, visit:
 ### 1. Register User
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/register \
+curl -X POST {{BaseUrl}}/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "adaholotu@gmail.com",
@@ -150,7 +150,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
 ### 2. Login
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/login \
+curl -X POST {{BaseUrl}}/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "adaholotu@gmail.com",
@@ -161,7 +161,7 @@ curl -X POST http://localhost:3000/api/v1/auth/login \
 ### 3. Create Task
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/tasks \
+curl -X POST {{BaseUrl}}/api/v1/tasks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
@@ -174,7 +174,7 @@ curl -X POST http://localhost:3000/api/v1/tasks \
 ### 4. Update Task Status (Triggers Notification)
 
 ```bash
-curl -X PUT http://localhost:3000/api/v1/tasks/TASK_ID \
+curl -X PUT {{BaseUrl}}/api/v1/tasks/TASK_ID \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{

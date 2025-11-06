@@ -38,7 +38,7 @@ A comprehensive task management system built with NestJS, implementing Clean Arc
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/OlotuAdah/task-manager.git
    cd task-manager
    ```
 

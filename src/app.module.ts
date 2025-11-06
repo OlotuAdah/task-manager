@@ -8,6 +8,9 @@ import { AuthModule } from "./auth/auth.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { CommentsModule } from "./comments/comments.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { User } from "./database/entities/user.entity";
+import { Task } from "./database/entities/task.entity";
+import { Comment } from "./database/entities/comment.entity";
 
 @Module({
   imports: [
@@ -21,7 +24,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
       username: process.env.DATABASE_USERNAME || "postgres",
       password: process.env.DATABASE_PASSWORD || "password",
       database: process.env.DATABASE_NAME || "taskmanager",
-      autoLoadEntities: true,
+      entities: [User, Task, Comment],
       synchronize: process.env.NODE_ENV === "development",
     }),
     BullModule.forRoot({

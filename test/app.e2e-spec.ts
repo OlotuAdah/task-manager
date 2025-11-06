@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import { AppModule } from "./../src/app.module";
 
 describe("AppController (e2e)", () => {
@@ -16,8 +16,7 @@ describe("AppController (e2e)", () => {
   });
 
   it("/api/auth/register (POST)", () => {
-    return request
-      .default(app.getHttpServer())
+    return request(app.getHttpServer())
       .post("/api/auth/register")
       .send({
         email: "test@example.com",

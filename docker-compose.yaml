@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15
@@ -9,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -50,7 +48,7 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: 9My5uperSecretKey***GoesHere***ItShoultBe1ong3nough!
       JWT_EXPIRES_IN: 7d
-      NODE_ENV: production
+      NODE_ENV: development
     networks:
       - task-manager-network
     depends_on:

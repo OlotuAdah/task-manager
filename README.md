@@ -109,35 +109,35 @@ A comprehensive task management system built with NestJS, implementing Clean Arc
 
 Once the application is running, visit:
 
-- **Swagger UI**: <http://localhost:3000/api/docs>
-- **API Base URL**: <http://localhost:3000/api>
+- **Swagger UI**: <http://localhost:3000/api/v1/docs>
+- **API Base URL**: <http://localhost:3000/api/v1>
 
 ## API Endpoints
 
 ### Authentication
 
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login user
 
 ### Tasks
 
-- `GET /api/tasks` - Get user tasks (with pagination and filtering)
-- `GET /api/tasks/:id` - Get specific task
-- `POST /api/tasks` - Create new task
-- `PUT /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
+- `GET /api/v1/tasks` - Get user tasks (with pagination and filtering)
+- `GET /api/v1/tasks/:id` - Get specific task
+- `POST /api/v1/tasks` - Create new task
+- `PUT /api/v1/tasks/:id` - Update task
+- `DELETE /api/v1/tasks/:id` - Delete task
 
 ### Comments (Bonus)
 
-- `GET /api/tasks/:taskId/comments` - Get task comments (with pagination)
-- `POST /api/tasks/:taskId/comments` - Add comment to task
+- `GET /api/v1/tasks/:taskId/comments` - Get task comments (with pagination)
+- `POST /api/v1/tasks/:taskId/comments` - Add comment to task
 
 ## Usage Examples
 
 ### 1. Register User
 
 ```bash
-curl -X POST http://localhost:3000/api/auth/register \
+curl -X POST http://localhost:3000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "adaholotu@gmail.com",
@@ -150,7 +150,7 @@ curl -X POST http://localhost:3000/api/auth/register \
 ### 2. Login
 
 ```bash
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "adaholotu@gmail.com",
@@ -161,7 +161,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ### 3. Create Task
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks \
+curl -X POST http://localhost:3000/api/v1/tasks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
@@ -174,7 +174,7 @@ curl -X POST http://localhost:3000/api/tasks \
 ### 4. Update Task Status (Triggers Notification)
 
 ```bash
-curl -X PUT http://localhost:3000/api/tasks/TASK_ID \
+curl -X PUT http://localhost:3000/api/v1/tasks/TASK_ID \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{

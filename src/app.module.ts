@@ -3,6 +3,9 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BullModule } from "@nestjs/bull";
 import { CqrsModule } from "@nestjs/cqrs";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { LoggingInterceptor } from "./shared/interceptors/logging.interceptor";
 import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./auth/auth.module";
 import { TasksModule } from "./tasks/tasks.module";
@@ -17,6 +20,12 @@ import { Comment } from "./database/entities/comment.entity";
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: parseInt(process.env.RATE_LIMIT_TTL) || 60000,
+        limit: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+      },
+    ]),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.DATABASE_HOST || "localhost",
@@ -39,6 +48,16 @@ import { Comment } from "./database/entities/comment.entity";
     TasksModule,
     CommentsModule,
     NotificationsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
   ],
 })
 export class AppModule {}
